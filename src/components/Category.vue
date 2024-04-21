@@ -1,25 +1,26 @@
 <template>
-  <div
-    class="category-container"
-    draggable
-    @dragstart="handleDragStart"
-    @dragover.prevent
-    @drop="handleDrop"
-  >
+  <div class="category-container">
     <div class="category-title-container" @click="toggleDropdown">
-      <h2>{{ title }}</h2>
-      <span>{{ listElementsCount }}</span>
-      <button>{{ isOpen ? "↓" : "↑" }}</button>
+      <div class="category-title">
+        <h2>{{ title }}</h2>
+        <span>{{ listElementsCount }}</span>
+        <font-awesome-icon
+          :icon="isOpen ? 'chevron-up' : 'chevron-down'"
+          class="icon"
+        />
+      </div>
+      <div>
+        <font-awesome-icon
+          icon="pencil-alt"
+          class="icon"
+          @click="editCategory"
+        />
+
+        <font-awesome-icon icon="trash" class="icon" @click="removeCategory" />
+      </div>
     </div>
-    <div>
-      <button @click="editCategory">
-        <font-awesome-icon icon="pencil-alt" />
-      </button>
-      <button @click="removeCategory">
-        <font-awesome-icon icon="trash" />
-      </button>
-    </div>
-    <div v-if="isOpen" class="category-content-container">
+
+    <div :class="{ 'category-content-container': true, open: isOpen }">
       <ul>
         <CategoryElement
           v-for="(element, idx) in listElements"
@@ -32,11 +33,12 @@
       </ul>
       <button @click="addElement">
         <font-awesome-icon icon="plus" />
-        Add Element
+        Adaugă item
       </button>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref } from "vue";
@@ -90,15 +92,6 @@ const removeElement = (id) => {
 const editElement = (id, newTitle) => {
   emits("edit-element", props.index, id, newTitle);
 };
-
-const handleDragStart = (event) => {
-  event.dataTransfer.setData("text/plain", props.index);
-};
-
-const handleDrop = (event) => {
-  const draggedIndex = parseInt(event.dataTransfer.getData("text/plain"));
-  emits("handle-sort", draggedIndex, props.index);
-};
 </script>
 
 <style scoped>
@@ -113,7 +106,7 @@ const handleDrop = (event) => {
 }
 
 .icon:hover {
-  color: #04ad6a; /* Change color on hover */
+  color: #04ad6a;
 }
 
 .category-container {
@@ -146,7 +139,6 @@ const handleDrop = (event) => {
 }
 .category-content-container ul {
   list-style: none;
-  width: 50%;
   margin: 16px 16px 0 16px;
 }
 
@@ -161,7 +153,6 @@ const handleDrop = (event) => {
   gap: 0px;
   border-radius: 999px;
   border: 1px solid #059669;
-  opacity: 0px;
   background-color: #fff;
   color: #000;
   cursor: pointer;

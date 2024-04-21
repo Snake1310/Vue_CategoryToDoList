@@ -1,16 +1,17 @@
 <template>
-  <li class="list-item">
+  <li
+    class="list-item"
+    draggable
+    @dragstart="handleDragStart"
+    @drop="handleDrop"
+  >
     <div class="list-item-content" @click="toggleCheck">
       <input type="checkbox" v-model="isChecked" />
       <span>{{ element }}</span>
     </div>
     <div>
-      <button @click="editElement">
-        <font-awesome-icon icon="pencil-alt" />
-      </button>
-      <button @click="removeElement">
-        <font-awesome-icon icon="trash" />
-      </button>
+      <font-awesome-icon icon="pencil-alt" class="icon" @click="editElement" />
+      <font-awesome-icon icon="trash" class="icon" @click="removeElement" />
     </div>
   </li>
 </template>
@@ -41,7 +42,18 @@ const editElement = () => {
 const removeElement = () => {
   emits("remove-element", props.id);
 };
+
+const handleDragStart = (event) => {
+  event.dataTransfer.setData("text/plain", props.id);
+};
+
+const handleDrop = (event) => {
+  event.preventDefault(); // This line is crucial to allow dropping.
+  const droppedIndex = parseInt(event.dataTransfer.getData("text/plain"));
+  emits("handle-sort", props.id, droppedIndex);
+};
 </script>
+
 
 <style scoped>
 .icon {

@@ -86,7 +86,23 @@ const handleSort = (draggedIndex, dropIndex) => {
   updateCategories(newCategories);
 };
 </script>
-
 <style scoped>
-@import "./assets/index.css";
+.button {
+  padding: 16px 10px;
+  margin: 30px 0;
+  gap: 0px;
+  border-radius: 999px;
+  border: 0;
+  opacity: 0px;
+  background-color: #059669;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.button:hover {
+  background-color: #04ad6a;
+}
 </style>

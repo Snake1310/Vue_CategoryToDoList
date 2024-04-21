@@ -1,4 +1,6 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
+import "./assets/index.css";
+
 import {
     faChevronDown,
     faChevronUp,
