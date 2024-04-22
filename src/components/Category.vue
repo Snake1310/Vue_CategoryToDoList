@@ -13,10 +13,14 @@
         <font-awesome-icon
           icon="pencil-alt"
           class="icon"
-          @click="editCategory"
+          @click.stop="editCategory"
         />
 
-        <font-awesome-icon icon="trash" class="icon" @click="removeCategory" />
+        <font-awesome-icon
+          icon="trash"
+          class="icon"
+          @click.stop="removeCategory"
+        />
       </div>
     </div>
 
@@ -27,8 +31,10 @@
           :key="idx"
           :id="idx"
           :element="element"
+          :categoryIndex="index"
           @remove-element="removeElement"
           @edit-element="editElement"
+          @element-dragged="handleElementDragged"
         />
       </ul>
       <button @click="addElement">
@@ -38,7 +44,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref } from "vue";
@@ -58,13 +63,13 @@ const emits = defineEmits([
   "remove-element",
   "edit-element",
   "handle-sort",
+  "update:listElements", // Declare this event here
 ]);
 
 const isOpen = ref(true);
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value;
-  console.log("Dropdown state:", isOpen.value); // Check if toggling works
 };
 
 const editCategory = () => {
@@ -81,7 +86,8 @@ const removeCategory = () => {
 const addElement = () => {
   const elementTitle = prompt("Enter new element title:");
   if (elementTitle) {
-    emits("add-element", props.index, elementTitle);
+    const newElement = { title: elementTitle, isChecked: false };
+    emits('add-element', props.index, newElement);
   }
 };
 
@@ -89,10 +95,20 @@ const removeElement = (id) => {
   emits("remove-element", props.index, id);
 };
 
-const editElement = (id, newTitle) => {
-  emits("edit-element", props.index, id, newTitle);
+const editElement = (id, updatedElement) => {
+  emits('edit-element', props.index, id, updatedElement);
 };
+
+const handleElementDragged = (categoryIndex, startId, endId) => {
+  const list = [...props.listElements];
+  const item = list.splice(startId, 1)[0];
+  list.splice(endId, 0, item);
+  emits("update:listElements", list);
+};
+
 </script>
+
+
 
 <style scoped>
 * {

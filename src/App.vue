@@ -7,13 +7,13 @@
       :index="index"
       :title="category.title"
       :listElements="category.listElements"
-      :listElementsCount="category.listElementsCount"
+      :listElementsCount="category.listElements.length"
       @edit-category="editCategory"
       @remove-category="removeCategory"
       @add-element="addElement"
       @remove-element="removeElement"
       @edit-element="editElement"
-      @handle-sort="handleSort"
+      @update:listElements="updateListElements(index, $event)"
     />
     <button @click="addCategory" class="button">
       <font-awesome-icon icon="plus" />
@@ -29,63 +29,60 @@ import Category from "./components/Category.vue";
 const categories = ref([]);
 
 onMounted(() => {
-  const savedCategories = localStorage.getItem("categories");
-  categories.value = savedCategories ? JSON.parse(savedCategories) : [];
+  categories.value = JSON.parse(localStorage.getItem("categories") || "[]");
 });
 
-const updateCategories = (newCategories) => {
-  categories.value = newCategories;
-  localStorage.setItem("categories", JSON.stringify(newCategories));
+const updateCategories = () => {
+  localStorage.setItem("categories", JSON.stringify(categories.value));
 };
 
 const addCategory = () => {
   const title = prompt("Introduceti titlul categoriei:");
   if (title) {
-    const newCategory = { title, listElements: [], listElementsCount: 0 };
-    updateCategories([...categories.value, newCategory]);
+    const newCategory = { title, listElements: [] };
+    categories.value.push(newCategory);
+    updateCategories();
   }
 };
 
 const editCategory = (index, newTitle) => {
-  const newCategories = [...categories.value];
-  newCategories[index] = { ...newCategories[index], title: newTitle };
-  updateCategories(newCategories);
+  categories.value[index].title = newTitle;
+  updateCategories();
 };
 
 const removeCategory = (index) => {
-  const newCategories = [...categories.value];
-  newCategories.splice(index, 1);
-  updateCategories(newCategories);
+  categories.value.splice(index, 1);
+  updateCategories();
 };
 
 const addElement = (categoryIndex, element) => {
-  const newCategories = [...categories.value];
-  const category = newCategories[categoryIndex];
-  category.listElements.push(element);
-  category.listElementsCount++;
-  updateCategories(newCategories);
+  categories.value[categoryIndex].listElements.push({
+    ...element,
+    isChecked: false,
+  });
+  updateCategories();
 };
 
-const removeElement = (categoryIndex, listElementIndex) => {
-  const newCategories = [...categories.value];
-  newCategories[categoryIndex].listElements.splice(listElementIndex, 1);
-  newCategories[categoryIndex].listElementsCount--;
-  updateCategories(newCategories);
+const removeElement = (categoryIndex, elementIndex) => {
+  categories.value[categoryIndex].listElements.splice(elementIndex, 1);
+  updateCategories();
 };
 
-const editElement = (categoryIndex, listElementIndex, newTitle) => {
-  const newCategories = [...categories.value];
-  newCategories[categoryIndex].listElements[listElementIndex] = newTitle;
-  updateCategories(newCategories);
+const editElement = (categoryIndex, elementIndex, newElement) => {
+  categories.value[categoryIndex].listElements[elementIndex] = {
+    ...newElement,
+  };
+  updateCategories();
 };
 
-const handleSort = (draggedIndex, dropIndex) => {
-  const newCategories = [...categories.value];
-  const draggedCategory = newCategories.splice(draggedIndex, 1)[0];
-  newCategories.splice(dropIndex, 0, draggedCategory);
-  updateCategories(newCategories);
+const updateListElements = (categoryIndex, newList) => {
+  categories.value[categoryIndex].listElements = newList;
+  updateCategories();
 };
 </script>
+
+
+
 <style scoped>
 .button {
   padding: 16px 10px;

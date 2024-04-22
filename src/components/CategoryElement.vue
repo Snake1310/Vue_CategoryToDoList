@@ -1,17 +1,27 @@
 <template>
   <li
     class="list-item"
-    draggable
+    draggable="true"
     @dragstart="handleDragStart"
+    @dragover="handleDragOver"
     @drop="handleDrop"
+    @dragend="handleDragEnd"
   >
     <div class="list-item-content" @click="toggleCheck">
-      <input type="checkbox" v-model="isChecked" />
-      <span>{{ element }}</span>
+      <input type="checkbox" v-model="element.isChecked" />
+      <span>{{ element.title }}</span>
     </div>
     <div>
-      <font-awesome-icon icon="pencil-alt" class="icon" @click="editElement" />
-      <font-awesome-icon icon="trash" class="icon" @click="removeElement" />
+      <font-awesome-icon
+        icon="pencil-alt"
+        class="icon"
+        @click.stop="editElement"
+      />
+      <font-awesome-icon
+        icon="trash"
+        class="icon"
+        @click.stop="removeElement"
+      />
     </div>
   </li>
 </template>
@@ -21,15 +31,21 @@ import { ref } from "vue";
 
 const props = defineProps({
   id: Number,
-  element: String,
+  element: Object,
+  categoryIndex: Number,
 });
 
-const emits = defineEmits(["remove-element", "edit-element"]);
+const emits = defineEmits([
+  "remove-element",
+  "edit-element",
+  "element-dragged",
+]);
 
 const isChecked = ref(false);
 
 const toggleCheck = () => {
-  isChecked.value = !isChecked.value;
+  props.element.isChecked = !props.element.isChecked; // Toggle the checked state
+  emits('edit-element', props.categoryIndex, props.id, props.element); // Emit the updated element
 };
 
 const editElement = () => {
@@ -44,13 +60,26 @@ const removeElement = () => {
 };
 
 const handleDragStart = (event) => {
-  event.dataTransfer.setData("text/plain", props.id);
+  event.dataTransfer.setData("text/plain", props.id.toString());
+  event.dataTransfer.effectAllowed = "move";
+  event.currentTarget.classList.add("dragging");
+};
+
+const handleDragOver = (event) => {
+  event.preventDefault(); // Necessary to allow dropping
+  event.dataTransfer.dropEffect = "move";
 };
 
 const handleDrop = (event) => {
-  event.preventDefault(); // This line is crucial to allow dropping.
-  const droppedIndex = parseInt(event.dataTransfer.getData("text/plain"));
-  emits("handle-sort", props.id, droppedIndex);
+  event.preventDefault();
+  const draggedId = parseInt(event.dataTransfer.getData("text/plain"));
+  if (draggedId !== props.id) {
+    emits("element-dragged", props.categoryIndex, draggedId, props.id);
+  }
+};
+
+const handleDragEnd = (event) => {
+  event.currentTarget.classList.remove("dragging");
 };
 </script>
 
@@ -97,5 +126,9 @@ const handleDrop = (event) => {
 .list-item-content input:hover,
 .list-item-content span:hover {
   cursor: pointer;
+}
+
+.list-item.dragging {
+  opacity: 0.5;
 }
 </style>
