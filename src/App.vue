@@ -69,9 +69,7 @@ const removeElement = (categoryIndex, elementIndex) => {
 };
 
 const editElement = (categoryIndex, elementIndex, newElement) => {
-  categories.value[categoryIndex].listElements[elementIndex] = {
-    ...newElement,
-  };
+  categories.value[categoryIndex].listElements[elementIndex] = newElement;
   updateCategories();
 };
 

@@ -51,7 +51,8 @@ const toggleCheck = () => {
 const editElement = () => {
   const newTitle = prompt("Enter new element title:");
   if (newTitle) {
-    emits("edit-element", props.id, newTitle);
+    const updatedElement = { ...props.element, title: newTitle };
+    emits("edit-element", props.categoryIndex, props.id, updatedElement);
   }
 };
 
