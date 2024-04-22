@@ -63,7 +63,7 @@ const emits = defineEmits([
   "remove-element",
   "edit-element",
   "handle-sort",
-  "update:listElements", // Declare this event here
+  "update:listElements", 
 ]);
 
 const isOpen = ref(true);
